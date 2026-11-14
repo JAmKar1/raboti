@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация — Автосалон{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container auth-wrap">
+    <form method="post" class="panel auth">
+      <h2>Регистрация</h2>
+      <div class="field"><label>Имя</label><input name="name" value="{{ form.get('name','') }}" required></div>
+      <div class="field"><label>E-mail</label><input name="email" type="email" value="{{ form.get('email','') }}"
+          required></div>
+      <div class="field"><label>Телефон</label><input name="phone" value="{{ form.get('phone','') }}"></div>
+      <div class="field"><label>Пароль</label><input name="password" type="password" minlength="6" required></div>
+      <div class="field"><label>Повтор пароля</label><input name="password2" type="password" minlength="6" required>
+      </div>
+      <button class="btn btn--primary btn--block">Создать аккаунт</button>
+      <p class="auth__alt">Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

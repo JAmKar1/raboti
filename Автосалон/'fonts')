@@ -1,0 +1,12 @@
+url        http://127.0.0.1:5000/credit
+http       200
+load       395ms
+title      "Кредитный калькулятор — Автосалон"
+bodyChars  3531
+patchright C:\Users\Student2\.vscode\extensions\danielsanmedium.dscodegpt-3.24.77\standalone/
+text       г. Москва, ул. Автозаводская, д. 12 Пн–Вс: 09:00 – 21:00 info@avtosalon.ru +7 (495) 123-45-67 АМ Премиум Моторс Главная Каталог Кредит Trade-in О нас Контакты ⇄ ♥ Войти Кредитный калькулятор Рассчитай
+eval       "EVAL ERROR: Error: page.evaluate: SyntaxError: Unexpected token ')'"
+
+console errors/warnings (0):
+
+requests failed (0):

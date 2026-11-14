@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import car_card %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero__inner">
+    <div class="hero__text">
+      <span class="eyebrow">Автосалон полного цикла с 2014 года</span>
+      <h1>Подберём автомобиль<br>под ваш образ жизни</h1>
+      <p>{{ count }} автомобилей в наличии, официальная гарантия, trade-in за 30 минут и кредит от 4,9% годовых.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary btn--lg" href="{{ url_for('catalog') }}">Смотреть каталог</a>
+        <a class="btn btn--outline btn--lg" href="{{ url_for('credit_page') }}">Рассчитать кредит</a>
+      </div>
+      <ul class="hero__stats">
+        <li><strong>1 200+</strong><span>автомобилей продано</span></li>
+        <li><strong>{{ count }}</strong><span>автомобилей в наличии</span></li>
+        <li><strong>4.9</strong><span>рейтинг клиентов</span></li>
+      </ul>
+    </div>
+    <div class="hero__art">
+      <img class="hero__photo" src="{{ url_for('static', filename='uploads/bmw_x5.jpg') }}"
+        alt="Автомобиль в автосалоне" width="640" height="400">
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <h2>Популярные модели</h2>
+      <a class="link" href="{{ url_for('catalog') }}">Весь каталог →</a>
+    </div>
+    <div class="grid grid--3">
+      {% for car in hits %}{{ car_card(car) }}{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <h2>Наши услуги</h2>
+    </div>
+    <div class="grid grid--4">
+      {% for title, text, badge, url in [
+      ('Кредит под 4.9%', 'Подберём выгодную программу финансирования от 7 банков-партнёров.', 'от 49 000 ₽/мес',
+      url_for('credit_page')),
+      ('Trade-in за 30 минут', 'Быстрая и честная оценка вашего автомобиля, выкуп от 90% рыночной цены.', 'оценка 0 ₽',
+      url_for('trade_in')),
+      ('Сравнение моделей', 'Сопоставьте до 4 автомобилей по цене, характеристикам и условиям.', 'до 4 моделей',
+      url_for('compare')),
+      ('Сервис и ремонт', 'Оригинальные запчасти и диагностика на профессиональном оборудовании.', 'скидка 15%',
+      url_for('contacts'))] %}
+      <a class="feature" href="{{ url }}">
+        <h3>{{ title }}</h3>
+        <p>{{ text }}</p>
+        <span class="feature__badge">{{ badge }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <h2>Популярные марки</h2>
+    </div>
+    <div class="brands">
+      {% for b in brands %}
+      <a class="chip" href="{{ url_for('catalog', brand=b.value) }}">{{ b.value }} <em>{{ b.count }}</em></a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <h2>Самые доступные</h2>
+      <a class="link" href="{{ url_for('catalog', sort='price_asc') }}">Все варианты →</a>
+    </div>
+    <div class="grid grid--3">
+      {% for car in cheap %}{{ car_card(car) }}{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <h2>Премиум-сегмент</h2>
+      <a class="link" href="{{ url_for('catalog', min_price=4000000) }}">Все варианты →</a>
+    </div>
+    <div class="grid grid--3">
+      {% for car in expensive %}{{ car_card(car) }}{% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if news %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <h2>Новости автосалона</h2>
+    </div>
+    <div class="grid grid--3">
+      {% for n in news %}
+      <article class="news">
+        <time>{{ n.date }}</time>
+        <h3>{{ n.title }}</h3>
+        <p>{{ n.text | truncate(160) }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="cta">
+  <div class="container cta__inner">
+    <div>
+      <h2>Оставьте заявку — подберём авто за 30 минут</h2>
+      <p>Менеджер перезвонит, уточнит пожелания и подготовит лучшие варианты по цене и срокам.</p>
+    </div>
+    <a class="btn btn--primary btn--lg" href="{{ url_for('contacts') }}">Отправить заявку</a>
+  </div>
+</section>
+{% endblock %}

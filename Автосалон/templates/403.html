@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}403 — Доступ запрещён{% endblock %}
+{% block content %}
+<section class="section error-page">
+  <div class="container">
+    <span class="error-page__code">403</span>
+    <h1>Доступ запрещён</h1>
+    <p>У вас нет прав для просмотра этой страницы.</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href="{{ url_for('index') }}">На главную</a>
+      {% if not current_user %}<a class="btn btn--outline" href="{{ url_for('login') }}">Войти</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Админ — заявки{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Заявки ({{ stats.total }})</h1>
+    <p>Новых: {{ stats.new }} · в работе: {{ stats.in_progress }} · закрыто: {{ stats.done }}</p>
+  </div>
+  <div class="container admin-nav"><a class="chip" href="{{ url_for('admin_dashboard') }}">Дашборд</a></div>
+</section>
+<section class="section">
+  <div class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Дата</th>
+          <th>Клиент</th>
+          <th>Телефон</th>
+          <th>Тип</th>
+          <th>Авто</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>{{ o['id'] }}</td>
+          <td>{{ o['created_at'][:16] }}</td>
+          <td>{{ o['name'] }}</td>
+          <td>{{ o['phone'] }}</td>
+          <td>{{ o['kind'] }}</td>
+          <td>{% if o['car_id'] %}#{{ o['car_id'] }}{% else %}—{% endif %}</td>
+          <td>
+            <form method="post" class="row-form">
+              <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+              <input type="hidden" name="id" value="{{ o['id'] }}">
+              <select name="status">
+                {% for s in ['new','in_progress','done'] %}
+                <option value="{{ s }}" {{ 'selected' if o['status']==s }}>{{ s }}</option>
+                {% endfor %}
+              </select>
+              <button class="btn btn--ghost btn--sm">↻</button>
+            </form>
+          </td>
+          <td>
+            <form method="post">
+              <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+              <input type="hidden" name="id" value="{{ o['id'] }}">
+              <input type="hidden" name="action" value="delete">
+              <button class="btn btn--danger btn--sm">×</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
