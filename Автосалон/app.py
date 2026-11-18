@@ -85,6 +85,9 @@ def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if not session.get("user_id"):
+            if request.headers.get("X-Requested-With") == "fetch":
+                return jsonify({"ok": False, "auth": False,
+                                "error": "Нужен вход в аккаунт"}), 401
             flash("Войдите в аккаунт, чтобы продолжить.", "error")
             return redirect(url_for("login", next=request.full_path))
         return f(*args, **kwargs)
@@ -127,13 +130,21 @@ def inject_globals():
 @app.before_request
 def csrf_protect():
     """Проверка CSRF-токена для всех изменяющих запросов."""
-    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
-        token = request.form.get("_csrf") or request.headers.get("X-CSRF-Token")
-        if not token or token != session.get("csrf"):
-            if request.headers.get("X-Requested-With") == "fetch":
-                return jsonify({"ok": False, "error": "Сессия истекла"}), 400
-            flash("Сессия истекла, попробуйте ещё раз.", "error")
-            return redirect(request.referrer or url_for("index"))
+    # GET-запросы и API-эндпоинты только для чтения не требуют токен
+    if request.method not in ("POST", "PUT", "PATCH", "DELETE"):
+        g.csrf = session.get("csrf")
+        return
+    if request.blueprint is None and request.path.startswith("/api/"):
+        # api_* защищены на уровне самих эндпоинтов (только чтение)
+        g.csrf = session.get("csrf")
+        return
+    token = request.form.get("_csrf") or request.headers.get("X-CSRF-Token")
+    if not token or token != session.get("csrf"):
+        if request.headers.get("X-Requested-With") == "fetch":
+            return jsonify({"ok": False, "error": "session",
+                            "message": "Сессия истекла, обновите страницу."}), 409
+        flash("Сессия истекла, попробуйте ещё раз.", "error")
+        return redirect(request.referrer or url_for("index"))
     g.csrf = session.get("csrf")
 
 
@@ -440,18 +451,27 @@ def add_review(car_id):
 # Избранное
 # --------------------------------------------------------------------------
 @app.route("/favorites")
-@login_required
 def favorites():
+    if not session.get("user_id"):
+        # не ругаемся «сессия истекла» — просто просим войти
+        flash("Войдите, чтобы пользоваться избранным.", "info")
+        return redirect(url_for("login", next=request.url))
     return render_template("favorites.html", cars=db.favorites_of(session["user_id"]))
 
 
 @app.route("/favorites/<int:car_id>", methods=["POST"])
-@login_required
 def toggle_favorite(car_id):
     if not db.get_car(car_id):
         abort(404)
+    wants_json = request.headers.get("X-Requested-With") == "fetch"
+    if not session.get("user_id"):
+        if wants_json:
+            return jsonify({"ok": False, "error": "auth",
+                            "message": "Войдите, чтобы добавлять в избранное."}), 401
+        flash("Войдите, чтобы добавлять в избранное.", "info")
+        return redirect(url_for("login", next=request.referrer or url_for("catalog")))
     added = db.toggle_favorite(session["user_id"], car_id)
-    if request.headers.get("X-Requested-With") == "fetch":
+    if wants_json:
         return jsonify({"ok": True, "added": added,
                         "count": len(db.favorite_ids(session["user_id"]))})
     flash("Добавлено в избранное" if added else "Удалено из избранного", "success")
@@ -588,7 +608,10 @@ def delete_photo(photo_id):
 @app.route("/api/cars")
 def api_cars():
     limit = min(_to_int(request.args.get("limit"), 50), 200)
-    cars, total = db.search_cars(request.args, 1, limit)
+    page = max(_to_int(request.args.get("page"), 1), 1)
+    cars, total = db.search_cars(request.args, page, limit)
+    favs = set(db.favorite_ids(session.get("user_id")))
+    compare = session.get("compare", [])
     return jsonify({
         "total": total,
         "items": [{
@@ -597,6 +620,9 @@ def api_cars():
             "price_label": data.price_label(c["price"]), "body": c["body"],
             "fuel": c["fuel"], "color": c["color"], "power": c["power"],
             "transmission": c["transmission"], "photo": c["photo"], "features": c["features"],
+            "engine": c["engine"], "drive": c["drive"], "condition": c["condition"],
+            "is_sold": c["is_sold"],
+            "is_fav": c["id"] in favs, "is_compared": c["id"] in compare,
             "url": url_for("car_details", car_id=c["id"]),
         } for c in cars],
     })
@@ -609,11 +635,28 @@ def api_suggest():
 
 @app.route("/api/credit")
 def api_credit():
-    return jsonify(logic.credit_summary(
-        _to_int(request.args.get("price"), 0),
-        _to_int(request.args.get("down"), 0),
-        _to_int(request.args.get("years"), 5),
-        float(request.args.get("rate") or 9.9)))
+    price = _to_int(request.args.get("price"), 0)
+    down = _to_int(request.args.get("down"), 0)
+    years = min(max(_to_int(request.args.get("years"), 5), 1), 10)
+    rate = float(request.args.get("rate") or 9.9)
+    summary = logic.credit_summary(price, down, years, rate)
+    summary["schedule"] = logic.credit_schedule(price, down, years, rate)[:60]
+    return jsonify(summary)
+
+
+@app.route("/api/tradein")
+def api_tradein():
+    form = {
+        "brand": request.args.get("brand", "Toyota"),
+        "year": _to_int(request.args.get("year"), 2019),
+        "mileage": _to_int(request.args.get("mileage"), 60000),
+        "condition": request.args.get("condition", "С пробегом"),
+        "fuel": request.args.get("fuel", "Бензин"),
+    }
+    group = logic.brand_group(form["brand"])
+    value = logic.trade_in_value(form["year"], form["mileage"], group,
+                                 form["condition"], form["fuel"])
+    return jsonify({"ok": True, "value": int(value), "group": group})
 
 
 @app.route("/api/rating/<int:car_id>")

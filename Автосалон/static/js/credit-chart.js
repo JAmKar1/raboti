@@ -1,7 +1,8 @@
 // Диаграмма выплат по кредиту — рисует SVG-график остатка долга.
 // Данные берутся из калькулятора: data-body (сумма кредита) и data-monthly.
-(function () {
-  var chart = document.getElementById('chart');
+
+function drawCreditChart(chart) {
+  chart = chart || document.getElementById('chart');
   if (!chart) return;
 
   var body = parseFloat(chart.dataset.body) || 0;
@@ -49,4 +50,9 @@
     '<span>' + Math.round(points[n]).toLocaleString('ru-RU') + ' ₽</span></div>';
 
   chart.innerHTML = svg;
-})();
+}
+window.drawCreditChart = drawCreditChart;
+
+document.addEventListener('DOMContentLoaded', function () {
+  drawCreditChart();
+});

@@ -276,3 +276,59 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   .form--grid { grid-template-columns: 1fr; }
   .about__numbers { grid-template-columns: 1fr 1fr; }
 }
+
+/* ---------- Facets (radio chips) ---------- */
+.facets { display: flex; flex-wrap: wrap; gap: 8px; }
+.facet { position: relative; display: inline-flex; cursor: pointer; margin: 0; }
+.facet__input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.facet__box { display: none; }
+.facet__text {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px;
+  font-size: .85rem; font-weight: 600; color: var(--text); background: #fff;
+  transition: .18s; text-transform: none; letter-spacing: 0;
+}
+.facet__count { font-style: normal; font-size: .74rem; font-weight: 700; color: var(--muted);
+  background: var(--surface-2); border-radius: 999px; padding: 1px 7px; }
+.facet:hover .facet__text { border-color: var(--primary); }
+.facet__input:checked + .facet__text { background: var(--primary); border-color: var(--primary); color: #fff; }
+.facet__input:checked + .facet__text .facet__count { background: rgba(255,255,255,.22); color: #fff; }
+.facet__input:focus-visible + .facet__text { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- Range slider ---------- */
+.range input[type="range"], .field input[type="range"] { flex: 1; width: 100%; height: 6px; margin-top: 8px; }
+input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: var(--surface-2); }
+input[type="range"]::-moz-range-track { height: 6px; border-radius: 999px; background: var(--surface-2); }
+.range input[type="range"] { display: block; }
+.range { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.range input[type="range"] { flex: 1; width: auto; padding: 0; border: 0; border-radius: 0; box-shadow: none;
+  -webkit-appearance: none; appearance: none; height: 6px; background: var(--line); cursor: pointer; }
+.range input[type="range"]:focus { outline: none; }
+.range input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%; background: var(--primary); border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgba(13,17,23,.3); }
+.range input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%;
+  background: var(--primary); border: 3px solid #fff; box-shadow: 0 1px 6px rgba(13,17,23,.3); }
+.range output { font-size: .85rem; font-weight: 700; color: var(--text); white-space: nowrap; min-width: 92px; text-align: right; }
+
+/* ---------- Switch ---------- */
+.switch { display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 14px 0; font-size: .9rem; font-weight: 600; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch__track { position: relative; display: inline-block; width: 40px; height: 22px; flex: none;
+  background: var(--line); border-radius: 999px; transition: .2s; }
+.switch__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(13,17,23,.25); transition: .2s; }
+.switch input:checked ~ .switch__track { background: var(--primary); }
+.switch input:checked ~ .switch__track::after { transform: translateX(18px); }
+.switch input:focus-visible ~ .switch__track { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- Suggest dropdown ---------- */
+.header__search { position: relative; flex: 1; max-width: 420px; }
+.suggest { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 60;
+  list-style: none; margin: 0; padding: 6px; background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: var(--shadow); max-height: 320px; overflow: auto; }
+.suggest li a { display: block; padding: 9px 12px; border-radius: 10px; color: var(--text);
+  text-decoration: none; font-size: .92rem; font-weight: 600; }
+.suggest li a:hover, .suggest li.is-active a { background: var(--surface-2); }
+.suggest .suggest__empty { padding: 10px 12px; color: var(--muted); font-size: .88rem; }
