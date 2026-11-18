@@ -85,6 +85,9 @@ def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if not session.get("user_id"):
+            if request.headers.get("X-Requested-With") == "fetch":
+                return jsonify({"ok": False, "auth": False,
+                                "error": "Нужен вход в аккаунт"}), 401
             flash("Войдите в аккаунт, чтобы продолжить.", "error")
             return redirect(url_for("login", next=request.full_path))
         return f(*args, **kwargs)
@@ -588,7 +591,10 @@ def delete_photo(photo_id):
 @app.route("/api/cars")
 def api_cars():
     limit = min(_to_int(request.args.get("limit"), 50), 200)
-    cars, total = db.search_cars(request.args, 1, limit)
+    page = max(_to_int(request.args.get("page"), 1), 1)
+    cars, total = db.search_cars(request.args, page, limit)
+    favs = set(db.favorite_ids(session.get("user_id")))
+    compare = session.get("compare", [])
     return jsonify({
         "total": total,
         "items": [{
@@ -597,6 +603,9 @@ def api_cars():
             "price_label": data.price_label(c["price"]), "body": c["body"],
             "fuel": c["fuel"], "color": c["color"], "power": c["power"],
             "transmission": c["transmission"], "photo": c["photo"], "features": c["features"],
+            "engine": c["engine"], "drive": c["drive"], "condition": c["condition"],
+            "is_sold": c["is_sold"],
+            "is_fav": c["id"] in favs, "is_compared": c["id"] in compare,
             "url": url_for("car_details", car_id=c["id"]),
         } for c in cars],
     })

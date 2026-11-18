@@ -3,23 +3,24 @@
 
 {% block title %}Каталог автомобилей — Автосалон{% endblock %}
 
-{% macro facet_group(name, title, facets, current, key='value') %}
+{% macro facet_group(name, title, facets, current) %}
 <fieldset class="filters__group">
   <legend>{{ title }}</legend>
   <div class="facets">
+    <label class="facet facet--any">
+      <input type="radio" class="facet__input" name="{{ name }}" value="all"
+             {{ 'checked' if not current or current == 'all' }}>
+      <span class="facet__box"></span>
+      <span class="facet__text">Любые</span>
+    </label>
     {% for f in facets %}
       <label class="facet">
-        <input type="radio" name="{{ name }}" value="{{ f.value }}"
-               {{ 'checked' if current == f.value }}
-               onchange="this.form.submit()">
-        <span>{{ f.value }} <em>{{ f.count }}</em></span>
+        <input type="radio" class="facet__input" name="{{ name }}" value="{{ f.value }}"
+               {{ 'checked' if current == f.value }}>
+        <span class="facet__box"></span>
+        <span class="facet__text">{{ f.value }} <em class="facet__count">{{ f.count }}</em></span>
       </label>
     {% endfor %}
-    <label class="facet facet--any">
-      <input type="radio" name="{{ name }}" value="all" {{ 'checked' if not current or current == 'all' }}
-             onchange="this.form.submit()">
-      <span>Любые</span>
-    </label>
   </div>
 </fieldset>
 {% endmacro %}
@@ -39,17 +40,15 @@
         <div class="filters__group">
           <label for="q">Поиск</label>
           <input type="search" id="q" name="q" value="{{ request.args.get('q', '') }}"
-                 placeholder="Марка, модель, VIN">
+                 placeholder="Марка, модель, VIN" autocomplete="off">
         </div>
 
         <div class="filters__group">
           <label>Цена, ₽</label>
           <div class="filters__row">
-            <input type="number" name="min_price" min="0" step="100000"
-                   placeholder="от {{ (price_bounds[0] / 1000000) | round | int }} млн"
+            <input type="number" name="min_price" min="0" step="100000" placeholder="от"
                    value="{{ request.args.get('min_price', '') }}">
-            <input type="number" name="max_price" min="0" step="100000"
-                   placeholder="до {{ (price_bounds[1] / 1000000) | round | int }} млн"
+            <input type="number" name="max_price" id="max_price" min="0" step="50000" placeholder="до"
                    value="{{ request.args.get('max_price', '') }}">
           </div>
           {% set range_value = request.args.get('max_price') or price_bounds[1] %}
@@ -70,13 +69,13 @@
         <div class="filters__group">
           <label for="min_year">Год выпуска</label>
           <div class="filters__row">
-            <select id="min_year" name="min_year" onchange="this.form.submit()">
+            <select id="min_year" name="min_year">
               <option value="">от</option>
               {% for y in range(year_bounds[1], year_bounds[0] - 1, -1) %}
                 <option value="{{ y }}" {{ 'selected' if request.args.get('min_year') == y|string }}>{{ y }}</option>
               {% endfor %}
             </select>
-            <select name="max_year" onchange="this.form.submit()">
+            <select name="max_year">
               <option value="">до</option>
               {% for y in range(year_bounds[1], year_bounds[0] - 1, -1) %}
                 <option value="{{ y }}" {{ 'selected' if request.args.get('max_year') == y|string }}>{{ y }}</option>
@@ -87,7 +86,7 @@
 
         <div class="filters__group">
           <label for="max_mileage">Пробег до</label>
-          <select id="max_mileage" name="max_mileage" onchange="this.form.submit()">
+          <select id="max_mileage" name="max_mileage">
             <option value="">Любой</option>
             {% for m in [10000, 25000, 50000, 80000, 150000] %}
               <option value="{{ m }}" {{ 'selected' if request.args.get('max_mileage') == m|string }}>{{ m | number_format }} км</option>
@@ -97,7 +96,7 @@
 
         <div class="filters__group">
           <label for="min_power">Мощность от, л.с.</label>
-          <select id="min_power" name="min_power" onchange="this.form.submit()">
+          <select id="min_power" name="min_power">
             <option value="">Любая</option>
             {% for p in [100, 150, 200, 250, 300] %}
               <option value="{{ p }}" {{ 'selected' if request.args.get('min_power') == p|string }}>{{ p }} л.с.</option>
@@ -107,8 +106,8 @@
 
         <label class="switch">
           <input type="checkbox" name="only_available" value="1"
-                 {{ 'checked' if request.args.get('only_available') == '1' }}
-                 onchange="this.form.submit()">
+                 {{ 'checked' if request.args.get('only_available') == '1' }}>
+          <span class="switch__track"></span>
           <span>Только в наличии</span>
         </label>
 
