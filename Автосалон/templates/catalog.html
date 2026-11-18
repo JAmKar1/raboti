@@ -127,7 +127,7 @@
             {% endif %}
           {% endfor %}
           <label for="sort">Сортировка:</label>
-          <select id="sort" name="sort" onchange="this.form.submit()">
+          <select id="sort" name="sort">
             {% for value, title in [
               ('price_asc', 'Цена: по возрастанию'),
               ('price_desc', 'Цена: по убыванию'),

@@ -17,7 +17,7 @@
 
       <div class="field">
         <label for="brand">Марка</label>
-        <select id="brand" name="brand" onchange="this.form.submit()">
+        <select id="brand" name="brand">
           {% for b in brands %}
           <option value="{{ b }}" {{ 'selected' if form.brand==b }}>{{ b }}</option>
           {% endfor %}
@@ -36,7 +36,7 @@
 
       <div class="field">
         <label for="condition">Состояние</label>
-        <select id="condition" name="condition" onchange="this.form.submit()">
+        <select id="condition" name="condition">
           {% for c in ['Новый', 'С пробегом'] %}
           <option value="{{ c }}" {{ 'selected' if form.condition==c }}>{{ c }}</option>
           {% endfor %}
