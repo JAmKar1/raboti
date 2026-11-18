@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Админ — автомобили{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Автомобили ({{ total }})</h1>
+  </div>
+  <div class="container admin-nav">
+    <a class="chip" href="{{ url_for('admin_dashboard') }}">Дашборд</a>
+    <a class="btn btn--primary btn--sm" href="{{ url_for('admin_car_new') }}">+ Добавить</a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Автомобиль</th>
+          <th>Год</th>
+          <th>Цена</th>
+          <th>Просм.</th>
+          <th>Акт./Продан</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cars %}
+        <tr>
+          <td>{{ c['id'] }}</td>
+          <td><a href="{{ url_for('car_details', car_id=c['id']) }}">{{ c['brand'] }} {{ c['model'] }}</a></td>
+          <td>{{ c['year'] }}</td>
+          <td>{{ c['price'] | money }}</td>
+          <td>{{ c['views'] }}</td>
+          <td>{{ '✓' if c['is_active'] else '✗' }} / {{ 'продан' if c['is_sold'] else '—' }}</td>
+          <td class="row-actions">
+            <form method="post" action="{{ url_for('admin_car_edit', car_id=c['id']) }}">
+              <a class="btn btn--ghost btn--sm" href="{{ url_for('admin_car_edit', car_id=c['id']) }}">Изм.</a>
+            </form>
+            <form method="post" action="{{ url_for('admin_car_toggle', car_id=c['id']) }}">
+              <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+              <button class="btn btn--ghost btn--sm">Продан</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_car_active', car_id=c['id']) }}">
+              <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+              <button class="btn btn--ghost btn--sm">{{ 'Скрыть' if c['is_active'] else 'Вернуть' }}</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_car_delete', car_id=c['id']) }}">
+              <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+              <button class="btn btn--danger btn--sm">Удалить</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

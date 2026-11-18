@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход — Автосалон{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container auth">
+    <form method="post" class="panel auth__card">
+      <h1>Вход для сотрудников</h1>
+      <p class="muted">Панель управления салоном. Клиентам вход не требуется.</p>
+
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" required value="{{ email }}" placeholder="you@mail.ru" autofocus>
+      </div>
+
+      <div class="field">
+        <label for="password">Пароль</label>
+        <input type="password" id="password" name="password" required placeholder="••••••••">
+      </div>
+
+      <button class="btn btn--primary btn--block" type="submit">Войти</button>
+
+      <p class="muted small">
+        Демо-доступ администратора: <code>admin@avtosalon.ru</code> / <code>admin123</code>
+      </p>
+    </form>
+  </div>
+</section>
+{% endblock %}
