@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Пользователи</h3>
+
+<form method="post" class="row g-2 mb-3">
+  <div class="col-md-3">
+    <input name="login" class="form-control" placeholder="Логин" required>
+  </div>
+  <div class="col-md-3">
+    <input name="password" type="password" class="form-control" placeholder="Пароль" required>
+  </div>
+  <div class="col-md-3">
+    <input name="full_name" class="form-control" placeholder="ФИО">
+  </div>
+  <div class="col-md-2">
+    <select name="role" class="form-select">
+      <option value="teacher">teacher</option>
+      <option value="storekeeper">storekeeper</option>
+      <option value="engineer">engineer</option>
+      <option value="admin">admin</option>
+    </select>
+  </div>
+  <div class="col-md-1">
+    <button class="btn btn-primary w-100">+</button>
+  </div>
+</form>
+
+<table class="table table-striped">
+  <tr>
+    <th>ID</th>
+    <th>Логин</th>
+    <th>ФИО</th>
+    <th>Роль</th>
+  </tr>
+  {% for u in users %}
+  <tr>
+    <td>{{ u.id }}</td>
+    <td>{{ u.login }}</td>
+    <td>{{ u.full_name }}</td>
+    <td>{{ u.role }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

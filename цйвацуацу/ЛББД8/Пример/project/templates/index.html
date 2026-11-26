@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Панель управления</h3>
+<div class="row mt-3">
+  <div class="col-md-3"><div class="card p-3"><b>Всего техники</b><span class="fs-3">{{ stats.total }}</span></div></div>
+  <div class="col-md-3"><div class="card p-3"><b>В эксплуатации</b><span class="fs-3 text-success">{{ stats.in_use }}</span></div></div>
+  <div class="col-md-3"><div class="card p-3"><b>На ремонте</b><span class="fs-3 text-warning">{{ stats.in_repair }}</span></div></div>
+  <div class="col-md-3"><div class="card p-3"><b>Открытых заявок</b><span class="fs-3 text-danger">{{ stats.open_requests }}</span></div></div>
+</div>
+{% endblock %}

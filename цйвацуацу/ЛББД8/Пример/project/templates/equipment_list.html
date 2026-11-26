@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Реестр техники</h3>
+  {% if current_user.role in ['admin','storekeeper'] %}
+  <a class="btn btn-success" href="{{ url_for('equipment_add') }}">+ Добавить</a>
+  {% endif %}
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-4"><input class="form-control" name="q" value="{{ q }}" placeholder="Поиск: инв. номер, наименование, модель"></div>
+  <div class="col-md-3">
+    <select name="status" class="form-select">
+      <option value="">Все статусы</option>
+      {% for s in ['в эксплуатации','на ремонте','списано'] %}
+      <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select name="type_id" class="form-select">
+      <option value="">Все типы</option>
+      {% for t in types %}
+      <option value="{{ t.id }}" {% if type_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Фильтр</button></div>
+</form>
+<table class="table table-striped table-hover align-middle">
+  <thead><tr><th>Инв. №</th><th>Наименование</th><th>Тип</th><th>Статус</th><th>Кабинет</th><th>Ответственный</th><th></th></tr></thead>
+  <tbody>
+  {% for e in items %}
+  <tr>
+    <td><a href="{{ url_for('equipment_card', eq_id=e.id) }}">{{ e.inv_number }}</a></td>
+    <td>{{ e.name }}</td>
+    <td>{{ e.type.name if e.type else '' }}</td>
+    <td>{{ e.status }}</td>
+    <td>{{ e.location.number if e.location else '' }}</td>
+    <td>{{ e.employee.full_name if e.employee else '' }}</td>
+    <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('equipment_card', eq_id=e.id) }}">Карточка</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="text-center text-muted">Нет записей</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

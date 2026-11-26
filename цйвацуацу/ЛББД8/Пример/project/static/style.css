@@ -1,0 +1,4 @@
+body { background: #f7f9fc; }
+.navbar-brand { font-weight: 700; letter-spacing: 1px; }
+.card { border: none; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.table thead th { background: #eef2f7; }

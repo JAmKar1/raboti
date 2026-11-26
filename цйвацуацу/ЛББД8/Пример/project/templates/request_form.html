@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Новая заявка на ремонт</h3>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Выберите технику</label>
+    <select name="equipment_id" class="form-select" required>
+      <option value="">— выберите технику —</option>
+      {% for e in equipment %}
+      <option value="{{ e.id }}">{{ e.inv_number }} — {{ e.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Описание неисправности</label>
+    <textarea name="description" class="form-control" rows="4" required placeholder="Что случилось?"></textarea>
+  </div>
+  <button class="btn btn-primary">Отправить заявку</button>
+  <a class="btn btn-secondary" href="{{ url_for('requests_list') }}">Отмена</a>
+</form>
+{% endblock %}

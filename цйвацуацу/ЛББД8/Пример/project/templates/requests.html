@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Заявки на ремонт</h3>
+  <a class="btn btn-success" href="{{ url_for('request_add') }}">+ Новая заявка</a>
+</div>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Создана</th>
+      <th>Техника</th>
+      <th>Описание</th>
+      <th>Статус</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in items %}
+  <tr>
+    <td>{{ r.id }}</td>
+    <td>{{ r.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+    <td>
+      {% if r.equipment %}
+        {{ r.equipment.inv_number }} — {{ r.equipment.name }}
+      {% else %}
+        Техника удалена
+      {% endif %}
+    </td>
+    <td>{{ r.description }}</td>
+    <td>{{ r.status }}</td>
+    <td>
+      {% if current_user.role in ['admin', 'engineer'] and r.status in ['новая', 'в работе'] %}
+      <form method="post" action="{{ url_for('request_close', rid=r.id) }}">
+        <input type="text" name="resolution" class="form-control form-control-sm mb-1" placeholder="Что сделано?" required>
+        <button class="btn btn-sm btn-success">Закрыть</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr>
+    <td colspan="6" class="text-center text-muted">Заявок пока нет</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

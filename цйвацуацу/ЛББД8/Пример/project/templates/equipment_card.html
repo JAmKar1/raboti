@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between">
+  <h3>Карточка: {{ item.inv_number }}</h3>
+  <div>
+    {% if current_user.role in ['admin','storekeeper'] %}
+    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('equipment_edit', eq_id=item.id) }}">Редактировать</a>
+    {% endif %}
+    {% if current_user.role == 'admin' %}
+    <form method="post" action="{{ url_for('equipment_delete', eq_id=item.id) }}" class="d-inline"
+          onsubmit="return confirm('Удалить технику?')">
+      <button class="btn btn-outline-danger btn-sm">Удалить</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<div class="row mt-3">
+  <div class="col-md-8">
+    <table class="table">
+      <tr><th>Наименование</th><td>{{ item.name }}</td></tr>
+      <tr><th>Тип</th><td>{{ item.type.name if item.type else '—' }}</td></tr>
+      <tr><th>Модель</th><td>{{ item.model or '—' }}</td></tr>
+      <tr><th>Серийный номер</th><td>{{ item.serial_number or '—' }}</td></tr>
+      <tr><th>Статус</th><td>{{ item.status }}</td></tr>
+      <tr><th>Кабинет</th><td>{{ item.location.number if item.location else '—' }}</td></tr>
+      <tr><th>Ответственный</th><td>{{ item.employee.full_name if item.employee else '—' }}</td></tr>
+      <tr><th>Дата покупки</th><td>{{ item.purchase_date or '—' }}</td></tr>
+      <tr><th>Стоимость</th><td>{{ item.cost or '—' }}</td></tr>
+      <tr><th>Примечание</th><td>{{ item.note or '—' }}</td></tr>
+    </table>
+    <h5>История заявок</h5>
+    <ul>
+      {% for r in item.requests %}
+      <li>{{ r.created_at.strftime('%d.%m.%Y %H:%M') }} — {{ r.status }} — {{ r.description }}</li>
+      {% else %}<li class="text-muted">Нет заявок</li>{% endfor %}
+    </ul>
+    <h5>История перемещений</h5>
+    <ul>
+      {% for m in item.movements %}
+      <li>{{ m.moved_at.strftime('%d.%m.%Y') }}: {{ m.from_location.number if m.from_location else '—' }}
+          → {{ m.to_location.number if m.to_location else '—' }} ({{ m.reason }})</li>
+      {% else %}<li class="text-muted">Перемещений не было</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-4 text-center">
+    <img src="{{ url_for('equipment_qr', eq_id=item.id) }}" alt="QR" class="img-fluid border p-2">
+    <p class="text-muted small mt-2">QR-код для инвентаризации</p>
+    {% if current_user.role in ['admin','storekeeper'] %}
+    <form method="post" action="{{ url_for('equipment_move', eq_id=item.id) }}" class="mt-2 text-start">
+      <label class="form-label">Переместить в кабинет</label>
+      <input class="form-control mb-2" name="to_location_id" placeholder="ID кабинета" required>
+      <input class="form-control mb-2" name="reason" placeholder="Причина">
+      <button class="btn btn-outline-secondary btn-sm w-100">Переместить</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
